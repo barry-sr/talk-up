@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
@@ -32,8 +32,13 @@ const Input = ({ className, ...props }) => {
   return (
     <input
       className={className}
+      name={props.name}
       type={props.type}
       placeholder={props.placeholder}
+      required
+      value={props.value}
+      onChange={props.onChange}
+      onKeyPress={props.onKeyPress}
     />
   );
 };
@@ -61,6 +66,7 @@ const Button = styled.button`
   position: relative;
   height: 30px;
   font-weight: bold;
+  opacity: ${props => (props.disabled ? "0.3" : "")};
 `;
 
 const LinkComponent = ({ className, ...props }) => {
@@ -80,14 +86,49 @@ const StyledLink = styled(LinkComponent)`
 `;
 
 const Login = () => {
+  const [isDisableButton, setIsDisableButton] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleChange = event => {
+    event.target.name === "username"
+      ? setUsername(event.target.value)
+      : setPassword(event.target.value);
+    console.log(username);
+
+    if (username !== "" && password !== "") {
+      setIsDisableButton(false);
+    } else {
+      setIsDisableButton(true);
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Container>
         <Header>Talk</Header>
         <StyledForm>
-          <StyledInput type="text" placeholder="Enter Username" />
-          <StyledInput type="password" placeholder="Enter Password" />
-          <Button>Log In</Button>
+          <StyledInput
+            name="username"
+            type="text"
+            placeholder="Enter Username"
+            value={username}
+            onChange={handleChange}
+            onKeyPress={handleChange}
+          />
+          <StyledInput
+            name="password"
+            type="password"
+            placeholder="Enter Password"
+            value={password}
+            onChange={handleChange}
+            onKeyPress={handleChange}
+          />
+          {isDisableButton ? (
+            <Button disabled>Log In</Button>
+          ) : (
+            <Button>Log In</Button>
+          )}
         </StyledForm>
       </Container>
       <Container

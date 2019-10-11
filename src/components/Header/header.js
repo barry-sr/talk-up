@@ -12,12 +12,14 @@ const Navbar = styled.nav`
 
 const Ul = styled.ul`
   list-style-type: none;
+  white-space: nowrap;
   margin: 0;
   padding: 0;
 `;
 
 const Li = styled.li`
   display: inline;
+  white-space: nowrap;
 `;
 
 const Links = ({ className, ...props }) => {
@@ -35,6 +37,7 @@ const StyledLink = styled(Links)`
   font-family: Arial, sans-serif;
   font-size: medium;
   font-weight: bold;
+  white-space: nowrap;
   letter-spacing: 1px;
   :hover {
     background-color: #111;
