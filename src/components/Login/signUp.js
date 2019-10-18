@@ -116,13 +116,13 @@ const SignUp = () => {
     let emailRegExp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     let passRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
 
-    if (formData.username.length < 3 || formData.username.length > 6) {
+    if (formData.username.length < 3 || formData.username.length > 15) {
       setError(true);
       setErrorMessage(prevstate => {
         return (
           { ...prevstate },
           {
-            usernameError: "Username should be 3 to 6 characters long"
+            usernameError: "Username should be at least 3 characters long"
           }
         );
       });
@@ -181,8 +181,10 @@ const SignUp = () => {
     if (validateData()) {
       e.preventDefault();
       setshowsuccessMessage(true);
+      
       //send data to api
-      //response success, display success message and reset form.
+      
+
       setFormData(initialForm);
     } else {
       e.preventDefault();
