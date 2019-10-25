@@ -10,9 +10,10 @@ app.get('/', (req, res)=> res.send('welcome to the backend server'))
 
 //DB connection
 mongoose.connect(process.env.DB_CONNECT,
- {useNewUrlParser: true, useUnifiedTopology: true},
- ()=> console.log('connected to DB')
- )
+ {useNewUrlParser: true, useUnifiedTopology: true},)
+ .then( ()=> console.log('connected to DB'))
+ .catch(error => console.log("Db connection error", error))
+
 
 //Body parser
 app.use(bodyParser.json())

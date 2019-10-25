@@ -4,54 +4,53 @@ const User = require('../model/User')
 const bcrypt = require('bcrypt');
 
 router.get('/signup', (req, res)=>{
-res.send("signup")
+    res.status(404).json("not found")
 })
 
 //SIGNUP ENDPOINT
 router.post('/signup', async (req, res)=>{
-    console.log(req.body)
-    
-    //lets validate data first 
-    const {error} = validateSignUpata(req.body);
+    const data = req.body;
 
-    console.log("validate error:",error)
-    if(error) return res.status(400).json(error);
+    //lets validate data first     
+    const {error} = validateSignUpata(data);
+    if(error) return res.status(400).json(error.details[0].message);
 
-    //Check if user exists
-    const usernameExist = await User.findOne({username: req.body.username});
-    
-    if(usernameExist) return res.status(400).json("Username already exists")
+    //check if user already exists
+    const usernameExists = await User.findOne({username: data.username})
+    if(usernameExists) return res.status(400).json("Username already exists!");
 
-    const emailExist = await User.findOne({email: req.body.email});
-    
-    if(emailExist) return res.status(400).json("Email is already in use")
+    const emailExists = await User.findOne({email: data.email})
+    if(emailExists) return res.status(400).json("Email is already in use!");
 
-    //Hash the password
-    const salt = bcrypt.genSalt(10)
-    const hashPassword = bcrypt.hash(data.body.password, salt)
+    // hash password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedpassword = bcrypt.hashSync(data.password, salt);
 
-    //Create new user
+    //store data in DB
     const user = new User({
-        username: req.body.username,
-        email: req.body.email,
-        password: hashPassword
-    })
+        username: data.username,
+        email: data.email,
+        password: hashedpassword
+    });
 
-    try {
-        const saveUser = await user.save()
-        saveUser.status(201).json({user: user._id})
-    } catch (error) {
-        console.log("storing user error:",error)
-        res.status(400).send(error)
-    }
+    user.save((error, savedData)=> {
+        if(error){
+            console.log('Storing data in DB error', error);
+            return res.status(400).json(error);
+        } 
+        res.status(201).json(savedData);
+    });
 })
 
 //LOGIN ENDPOINT
 router.post('/login', async(req, res)=>{
     //lets validate data first 
-    const {error} = validateLoginData(req.body)
-    console.log("validate error:",error)
-    if(error) return res.status(400).json(error)
+    // const {error} = validateLoginData(req.body)
+    // console.log("validate error:",error)
+    
+    console.log("data sent thru the api" ,req.body);
+
+    // if(error) return res.status(400).json(error)
 
     //Check if user exists
     const user = await User.findOne({username: req.body.username});
