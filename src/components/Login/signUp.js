@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
+const axios = require('axios');
+const {validateSignUpForm} = require('./validation')
+
 const Container = styled.div`
   display: flex;
   flex-direction: ${props => props.direction || "column"};
@@ -103,71 +106,8 @@ const SignUp = () => {
   };
 
   const [formData, setFormData] = useState(initialForm);
-  const [hasError, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState({
-    usernameError: "errors",
-    emailError: "",
-    passwordError: ""
-  });
+  const [errorMessage, setErrorMessage] = useState('');
   const [showsuccessMessage, setshowsuccessMessage] = useState(false);
-
-  const validateData = () => {
-    var usernameRegex = /^[a-zA-Z0-9]+$/;
-    let emailRegExp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    let passRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
-
-    if (formData.username.length < 3 || formData.username.length > 15) {
-      setError(true);
-      setErrorMessage(prevstate => {
-        return (
-          { ...prevstate },
-          {
-            usernameError: "Username should be at least 3 characters long"
-          }
-        );
-      });
-      return false;
-    }
-    if (!usernameRegex.test(formData.username)) {
-      setError(true);
-      setErrorMessage(prevstate => {
-        return (
-          { ...prevstate },
-          {
-            usernameError: "Invalid UserName"
-          }
-        );
-      });
-      return false;
-    }
-    if (!emailRegExp.test(formData.email)) {
-      setError(true);
-      setErrorMessage(prevstate => {
-        return (
-          { ...prevstate },
-          {
-            emailError: "Email is Invalid"
-          }
-        );
-      });
-      return false;
-    }
-    if (!passRegex.test(formData.password)) {
-      setError(true);
-      setErrorMessage(prevstate => {
-        return (
-          { ...prevstate },
-          {
-            passwordError:
-              "Password should contain 1 digit, 1 lower case, at least one upper case & 8 characters long"
-          }
-        );
-      });
-      return false;
-    }
-    setError(false);
-    return true;
-  };
 
   const handleChange = e => {
     const value = e.target.value;
@@ -178,19 +118,36 @@ const SignUp = () => {
   };
 
   const handleSubmit = e => {
-    if (validateData()) {
-      e.preventDefault();
-      setshowsuccessMessage(true);
-      
-      //send data to api
-      
+    e.preventDefault();
 
-      setFormData(initialForm);
-    } else {
-      e.preventDefault();
-      console.log("error");
-      console.log(errorMessage.usernameError);
-    }
+    const {error} = validateSignUpForm(formData);
+    if(error) {
+      let errorMessage = error.details[0].message;
+      console.log('signup form validation failed: ', errorMessage)
+      setErrorMessage(errorMessage);
+      return
+    } 
+    
+    //rest error message
+    setErrorMessage('');
+  
+    // Send data to the api
+    axios.post('http://localhost:5000/api/signup', {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password
+    })
+    .then((response) => {
+      console.log("signup API response", response);
+      setshowsuccessMessage(true); 
+    })
+    .catch((error)=> {
+      let errorMessage = error.response.data
+      console.log("signup API error", errorMessage)
+      setErrorMessage(errorMessage);
+    })
+    setErrorMessage('');
+    setFormData(initialForm);
   };
 
   return (
@@ -226,16 +183,14 @@ const SignUp = () => {
           />
           <Button type="submit" value="Sign up" />
         </StyledForm>
-        {hasError && (
+        {errorMessage !== '' && (
           <span
             style={{
               marginTop: "8px",
               color: "red"
             }}
           >
-            {errorMessage.usernameError}
-            {errorMessage.emailError}
-            {errorMessage.passwordError}
+            {errorMessage}
           </span>
         )}
       </Container>

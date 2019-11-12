@@ -4,7 +4,7 @@ const User = require('../model/User')
 const bcrypt = require('bcrypt');
 
 router.get('/signup', (req, res)=>{
-    res.status(404).json("not found")
+    res.status(401).json("Access denied")
 })
 
 //SIGNUP ENDPOINT
@@ -33,9 +33,9 @@ router.post('/signup', async (req, res)=>{
         password: hashedpassword
     });
 
-    user.save((error, savedData)=> {
+    user.save((error, savedData) => {
         if(error){
-            console.log('Storing data in DB error', error);
+            console.log('Storing data error', error);
             return res.status(400).json(error);
         } 
         res.status(201).json(savedData);
@@ -44,14 +44,12 @@ router.post('/signup', async (req, res)=>{
 
 //LOGIN ENDPOINT
 router.post('/login', async(req, res)=>{
-    //lets validate data first 
-    // const {error} = validateLoginData(req.body)
-    // console.log("validate error:",error)
+    const data = req.body;
     
-    console.log("data sent thru the api" ,req.body);
-
-    // if(error) return res.status(400).json(error)
-
+    //lets validate data first 
+    const {error} = validateLoginData(req.body)
+    if(error) return req.status(400).json(error.details[0].message);
+    
     //Check if user exists
     const user = await User.findOne({username: req.body.username});
     
@@ -63,7 +61,6 @@ router.post('/login', async(req, res)=>{
     if(!validPassword) return res.status(400).json("Invalid password!")
 
     res.status(201).json("success")
-
 })
 
 module.exports = router
