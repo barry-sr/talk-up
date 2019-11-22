@@ -1,16 +1,17 @@
 const Joi = require('@hapi/joi');
 
-const validateSignUpata = (data)=>{
+const validateSignUpForm = (data)=>{
     const schema = Joi.object().keys({
         username: Joi.string()
             .alphanum()
             .min(3)
             .max(30)
+            .pattern(/^[a-zA-Z0-9]+$/)
             .required(),
         
         email: Joi.string()
-            .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),    
-        
+            .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+                
         password: Joi.string()
             .pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,30}$/)
     })
@@ -18,8 +19,7 @@ const validateSignUpata = (data)=>{
     return schema.validate(data)
 }
 
-
-const validateLoginData = (data) => {
+const validateLoginForm = (data) => {
     const schema = Joi.object().keys({
         username: Joi.string()
             .alphanum()
@@ -35,4 +35,4 @@ const validateLoginData = (data) => {
    return schema.validate(data);
 }
 
-module.exports = {validateSignUpata, validateLoginData};
+module.exports = {validateSignUpForm, validateLoginForm};

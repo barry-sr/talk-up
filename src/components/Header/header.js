@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 
 const Navbar = styled.nav`
   display: flex;
+  margin-top: -10px;
+  margin-left: -8px;
   background-color: #205081;
   height: 3em;
-  justify-content: center
-  align-items: center
+  width: 100%;
+  position: fixed;
+  align-items: center;
 `;
 
 const Ul = styled.ul`
@@ -20,6 +23,7 @@ const Ul = styled.ul`
 const Li = styled.li`
   display: inline;
   white-space: nowrap;
+  width: 100px;
 `;
 
 const Links = ({ className, ...props }) => {
@@ -44,10 +48,6 @@ const StyledLink = styled(Links)`
   }
 `;
 
-const StyleDiv = styled.div`
-  padding-left: 15%;
-`;
-
 const Header = () => {
   return (
     <Navbar>
@@ -56,10 +56,6 @@ const Header = () => {
           <Li>
             <StyledLink to="/" label="Talk" />
           </Li>
-        </Ul>
-      </div>
-      <StyleDiv>
-        <Ul>
           <Li>
             <StyledLink to="/createPost" label="Create post" />
           </Li>
@@ -67,7 +63,7 @@ const Header = () => {
             <StyledLink to="/login" label="Login" />
           </Li>
         </Ul>
-      </StyleDiv>
+      </div>
     </Navbar>
   );
 };

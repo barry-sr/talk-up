@@ -13,7 +13,7 @@ const Main = () => {
   return (
     <Router>
       <Container>
-        <Route path="/login" component={Login}/>
+        <Route path="/login" component={Login} />
         <Route path="/signUp" component={SignUp} />
       </Container>
     </Router>

@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-const axios = require('axios');
-const {validateSignUpForm} = require('./validation')
+const axios = require("axios");
+const { validateSignUpForm } = require("./validation");
+const api = require("../../api");
 
 const Container = styled.div`
   display: flex;
@@ -106,7 +107,7 @@ const SignUp = () => {
   };
 
   const [formData, setFormData] = useState(initialForm);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [showsuccessMessage, setshowsuccessMessage] = useState(false);
 
   const handleChange = e => {
@@ -120,38 +121,41 @@ const SignUp = () => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    const {error} = validateSignUpForm(formData);
-    if(error) {
+    const { error } = validateSignUpForm(formData);
+    if (error) {
       let errorMessage = error.details[0].message;
-      console.log('signup form validation failed: ', errorMessage)
+      console.log("signup form validation failed: ", errorMessage);
       setErrorMessage(errorMessage);
-      return
-    } 
-    
+      return;
+    }
+
     //rest error message
-    setErrorMessage('');
-  
+    setErrorMessage("");
+
     // Send data to the api
-    axios.post('http://localhost:5000/api/signup', {
-      username: formData.username,
-      email: formData.email,
-      password: formData.password
-    })
-    .then((response) => {
-      console.log("signup API response", response);
-      setshowsuccessMessage(true); 
-    })
-    .catch((error)=> {
-      let errorMessage = error.response.data
-      console.log("signup API error", errorMessage)
-      setErrorMessage(errorMessage);
-    })
-    setErrorMessage('');
+    axios
+      .post(api + "signup", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      })
+      .then(response => {
+        console.log("signup API response", response);
+        setshowsuccessMessage(true);
+      })
+      .catch(error => {
+        let errorMessage = error.response.data;
+        console.log("signup API error", errorMessage);
+        setErrorMessage(errorMessage);
+      });
+    setErrorMessage("");
     setFormData(initialForm);
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", marginTop: "50px" }}
+    >
       {showsuccessMessage && (
         <AlertMessage>
           <strong>Success!</strong> You've successfuly sign up!
@@ -183,7 +187,7 @@ const SignUp = () => {
           />
           <Button type="submit" value="Sign up" />
         </StyledForm>
-        {errorMessage !== '' && (
+        {errorMessage !== "" && (
           <span
             style={{
               marginTop: "8px",

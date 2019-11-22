@@ -18,6 +18,12 @@
 .env.test.local
 .env.production.local
 
+
+/server/.env
+/server/node_modules
+/.env
+/src/api.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
+const axios = require("axios");
+const { validateLoginForm } = require("./validation");
+const api = require("../../api");
+
 const Container = styled.div`
   display: flex;
   flex-direction: ${props => props.direction || "column"};
@@ -38,7 +42,6 @@ const Input = ({ className, ...props }) => {
       required
       value={props.value}
       onChange={props.onChange}
-      onKeyPress={props.onKeyPress}
     />
   );
 };
@@ -86,43 +89,73 @@ const StyledLink = styled(LinkComponent)`
 `;
 
 const Login = () => {
-  const [isDisableButton, setIsDisableButton] = useState(true);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [isDisableButton, setIsDisableButton] = useState(false);
+  const [height, setHeight] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [formData, setFormData] = useState({ username: "", password: "" });
 
-  const handleChange = event => {
-    event.target.name === "username"
-      ? setUsername(event.target.value)
-      : setPassword(event.target.value);
-    console.log(username);
+  const handleChange = e => {
+    const value = e.target.value;
+    setFormData({
+      ...formData,
+      [e.target.name]: value
+    });
+  };
 
-    if (username !== "" && password !== "") {
-      setIsDisableButton(false);
-    } else {
-      setIsDisableButton(true);
+  const handleSubmit = e => {
+    e.preventDefault();
+
+    const { error } = validateLoginForm(formData);
+    if (error) {
+      let errorMessage = error.details[0].message;
+      console.log("signup form validation failed: ", errorMessage);
+      setHeight("295px");
+      setErrorMessage(errorMessage);
+      return;
     }
+
+    //rest error message
+    setErrorMessage("");
+    setHeight("");
+
+    // Send data to the api
+    axios
+      .post(api + "login", {
+        username: formData.username,
+        password: formData.password
+      })
+      .then(response => {
+        localStorage.setItem("jwt", response.data);
+        window.location.replace("/createPost");
+      })
+      .catch(error => {
+        let errorMessage = error.response.data;
+        console.log("Login API error", errorMessage);
+        setHeight("280px");
+        setErrorMessage(errorMessage);
+      });
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Container>
+    <div
+      style={{ display: "flex", flexDirection: "column", marginTop: "50px" }}
+    >
+      <Container height={height}>
         <Header>Talk</Header>
-        <StyledForm>
+        <StyledForm onSubmit={handleSubmit}>
           <StyledInput
             name="username"
             type="text"
             placeholder="Enter Username"
-            value={username}
+            value={formData.username}
             onChange={handleChange}
-            onKeyPress={handleChange}
           />
           <StyledInput
             name="password"
             type="password"
             placeholder="Enter Password"
-            value={password}
+            value={formData.password}
             onChange={handleChange}
-            onKeyPress={handleChange}
           />
           {isDisableButton ? (
             <Button disabled>Log In</Button>
@@ -130,6 +163,16 @@ const Login = () => {
             <Button>Log In</Button>
           )}
         </StyledForm>
+        {errorMessage !== "" && (
+          <span
+            style={{
+              marginTop: "8px",
+              color: "red"
+            }}
+          >
+            {errorMessage}
+          </span>
+        )}
       </Container>
       <Container
         direction="row"
